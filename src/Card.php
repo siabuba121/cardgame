@@ -6,7 +6,6 @@ class Card
 {
     private $color;
     private $type;
-    private $value;
 
     public function __construct(string $color, string $type)
     {
@@ -28,16 +27,11 @@ class Card
         }
     }
 
-    public function getType(): string
+    public function getType(bool $spacer = true): string
     {
-        if ($this->type !== '10') {
+        if ($this->type !== '10' && $spacer) {
             return $this->type.' ';
         }
         return $this->type;
     }
-
-//System.out.println("\u2665 This should be a Hearts suit symbol.");
-//System.out.println("\u2666 This should be a Diamonds suit symbol.");
-//System.out.println("\u2663 This should be a Clubs suit symbol.");
-//System.out.println("\u2660 This should be a Spades suit symbol.");
 }
