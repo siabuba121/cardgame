@@ -15,7 +15,9 @@ class Game
         $this->userInterface = new UserInterface();
         $this->deck = Deck::getDeck();
         $this->preparePlayers(1,1);
-        var_dump($this->players);
+        foreach ($this->players as $player) {
+            $this->userInterface->drawHand($player->getHand());
+        }
     }
 
     private function preparePlayers(int $normal, int $ai)
@@ -23,11 +25,13 @@ class Game
         for ($i=0; $i<$normal; $i++) {
             $player = new Player();
             $player->addToHand($this->getCardFromDeck());
+            $player->addToHand($this->getCardFromDeck());
             $this->players[] = $player;
         }
 
         for ($i=0; $i<$ai; $i++) {
             $player = new Player();
+            $player->addToHand($this->getCardFromDeck());
             $player->addToHand($this->getCardFromDeck());
             $this->players[] = $player;
         }
