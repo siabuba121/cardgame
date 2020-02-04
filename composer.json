@@ -11,5 +11,10 @@
             "App\\": "src/"
         }
     },
-    "require": {}
+    "require": {
+        "ext-json": "*"
+    },
+    "require-dev": {
+        "symplify/easy-coding-standard": "^7.2"
+    }
 }

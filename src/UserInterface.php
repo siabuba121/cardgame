@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App;
 
 class UserInterface
@@ -8,7 +10,11 @@ class UserInterface
 
     public function drawHandHeader(string $playerId, array $hand): void
     {
-        echo("Player: ".$playerId." points:".Deck::countHandValue($hand)." cards:\n");
+        printf(
+            "Player: %s points %i cards:\n",
+            $playerId,
+            Deck::countHandValue($hand)
+        );
     }
 
     public function drawHand(array $hand): void
@@ -35,17 +41,17 @@ class UserInterface
                     $this->printNormalLine($hand);
                     break;
             }
-            echo("\n");
+            echo"\n";
         }
     }
 
     private function printNormalLine(array $hand): void
     {
-        foreach ($hand as $key => $card) {
+        foreach (array_keys($hand) as $key) {
             if ($key === count($hand) - 1) {
-                echo('|   |       |   |');
+                echo'|   |       |   |';
             } else {
-                echo('|   ');
+                echo'|   ';
             }
         }
     }
@@ -54,31 +60,47 @@ class UserInterface
     {
         foreach ($hand as $key => $card) {
             if ($key === count($hand) - 1) {
-                echo('|' . json_decode('"' . $card->getColorIcon() . '"') . json_decode('"' . $card->getType() . '"') . '            |');
+                printf(
+                    '%s%s%s%s',
+                    '|',
+                    json_decode('"' . $card->getColorIcon() . '"'),
+                    $card->getType(),
+                    '            |'
+                );
             } else {
-                echo('|' . json_decode('"' . $card->getColorIcon() . '"') . json_decode('"' . $card->getType() . '"'));
+                printf(
+                    '%s%s%s',
+                    '|',
+                    json_decode('"' . $card->getColorIcon() . '"'),
+                    $card->getType()
+                );
             }
         }
     }
 
     private function printTopBottomline(array $hand): void
     {
-        foreach ($hand as $key => $card) {
+        foreach (array_keys($hand) as $key) {
             if ($key === count($hand) - 1) {
-                echo('+---------------+');
+                echo'+---------------+';
             } else {
-                echo('+---');
+                echo'+---';
             }
         }
     }
 
     private function printUnderColorLine(array $hand): void
     {
-        foreach ($hand as $key => $card) {
+        foreach (array_keys($hand) as $key) {
             if ($key === count($hand) - 1) {
-                echo("|   |" . json_decode('"\u2594\u2594\u2594\u2594\u2594\u2594\u2594"') . "|   |");
+                printf(
+                    '%s%s%s',
+                    '|   |',
+                    json_decode('"\u2594\u2594\u2594\u2594\u2594\u2594\u2594"'),
+                    '|   |'
+                );
             } else {
-                echo('|   ');
+                echo'|   ';
             }
         }
     }
@@ -87,34 +109,41 @@ class UserInterface
     {
         foreach ($hand as $key => $card) {
             if ($key === count($hand) - 1) {
-                echo('|            ' . json_decode('"' . $card->getColorIcon() . '"') . $card->getType() . '|');
+                printf(
+                    '%s%s%s%s',
+                    '|            ',
+                    json_decode('"' . $card->getColorIcon() . '"'),
+                    $card->getType(),
+                    '|'
+                );
             } else {
-                echo('|   ');
+                echo'|   ';
             }
         }
     }
 
     private function printOverColorBottomLine(array $hand): void
     {
-        foreach ($hand as $key => $card) {
+        foreach (array_keys($hand) as $key) {
             if ($key === count($hand) - 1) {
-                echo('|   |_______|   |');
+                echo'|   |_______|   |';
             } else {
-                echo('|   ');
+                echo'|   ';
             }
         }
     }
 
-    public function clearConsole(){
-        for ($i=0; $i<50; $i++) {
-            echo("\n");
+    public function clearConsole(): void
+    {
+        for ($i = 0; $i < 50; $i++) {
+            echo"\n";
         }
     }
 
-    public function requireAcceptForNextStep(string $message)
+    public function requireAcceptForNextStep(string $message): void
     {
-        echo($message."\n");
-        $handle = fopen ("php://stdin","r");
+        echo$message."\n";
+        $handle = fopen('php://stdin', 'r');
         fgets($handle);
     }
 }

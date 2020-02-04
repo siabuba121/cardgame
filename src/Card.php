@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App;
 
 class Card
@@ -13,25 +15,33 @@ class Card
         $this->color = $color;
     }
 
-    public function getColorIcon(): string
+    public function getColorIcon(): ?string
     {
         switch ($this->color) {
-            case "club":
+            case 'club':
                 return "\u2663";
-            case "diamond":
+            case 'diamond':
                 return "\u2666";
-            case "spade":
+            case 'spade':
                 return "\u2660";
-            case "heart":
+            case 'heart':
                 return "\u2665";
         }
+
+        return null;
     }
 
     public function getType(bool $spacer = true): string
     {
-        if ($this->type !== '10' && $spacer) {
+        if ('10' !== $this->type && $spacer) {
             return $this->type.' ';
         }
+
         return $this->type;
+    }
+
+    public function getColor(): string
+    {
+        return $this->color;
     }
 }
