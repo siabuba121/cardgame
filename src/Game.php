@@ -9,11 +9,13 @@ class Game
     private $gameGoing = true;
     private $players = [];
     private $userInterface;
+    private $ai;
     private $deck;
 
     public function __construct()
     {
         $this->userInterface = new UserInterface();
+        $this->ai = new Ai(50);
     }
 
     public function start(): void
@@ -32,6 +34,9 @@ class Game
         while ($this->gameGoing) {
             foreach ($this->players as $player) {
                 $this->userInterface->clearConsole();
+                if ($player->didPlayerPassed() === true) {
+                    continue;
+                }
                 if ($player->isAi()) {
                     $this->moveAi($player);
                 } else {
@@ -49,6 +54,7 @@ class Game
         for ($i = 0; $i < $normal; $i++) {
             $player = new Player('Marek');
             $player->addToHand($this->getCardFromDeck());
+            $player->sortHand();
             $this->players[] = $player;
         }
 
@@ -66,11 +72,21 @@ class Game
 
     private function moveAi(Player $player): void
     {
-        $player->addToHand($this->getCardFromDeck());
-        echo"Computer draws card\n";
-        $this->userInterface->drawHandHeader($player->getName(), $player->getHand());
-        $this->userInterface->drawHand($player->getHand());
-        $this->userInterface->requireAcceptForNextStep('Next player turn.. press enter');
+        $action = $this->ai->decideWhatToDo($player,$this->deck);
+        if($action === Ai::GETCARD) {
+            $player->addToHand($this->getCardFromDeck());
+            printf(
+                "%s draws card\n",
+                $player->getName()
+            );
+        } else {
+            $player->pass();
+            printf(
+                "%s passed\n",
+                $player->getName()
+            );
+        }
+        $this->userInterface->showHand($player);
     }
 
     private function movePlayer(Player $player): void
@@ -88,30 +104,53 @@ class Game
                 $correctAction = true;
             }
             if ('2' === trim($line)) {
+                $player->pass();
                 $correctAction = true;
             }
             if ('2' !== trim($line) && '1' !== trim($line)) {
                 echo"Not allowed option selected please select valid one\n";
             }
         }
+        $this->userInterface->clearConsole();
+        $this->userInterface->showHand($player);
     }
 
     private function checkIfGameEnds(): void
     {
+        $numOfPlayers = count($this->players);
+        $passed = 0;
+        $estimatedWinner = null;
+        $tie = false;
+
         foreach ($this->players as $player) {
+            if ($player->didPlayerPassed() === true) {
+                $passed++;
+            }
+            if ($estimatedWinner === null ){
+                $estimatedWinner = $player;
+            } else {
+                if (Deck::countHandValue($estimatedWinner->getHand()) === Deck::countHandValue($player->getHand())) {
+                    $tie = true;
+                }
+                if (Deck::countHandValue($estimatedWinner->getHand()) < Deck::countHandValue($player->getHand())) {
+                    $estimatedWinner = $player;
+                }
+            }
             if (21 === Deck::countHandValue($player->getHand())) {
-                $this->userInterface->clearConsole();
-                echo 'Player '.$player->getName()." won game\n";
-                $this->userInterface->drawHand($player->getHand());
-                $this->gameGoing = false;
+                $this->userInterface->anounceResult("win", $this, $player);
                 break;
             }
             if (Deck::countHandValue($player->getHand()) > 21) {
-                $this->userInterface->clearConsole();
-                echo 'Player '.$player->getName()." lost game\n";
-                $this->userInterface->drawHand($player->getHand());
-                $this->gameGoing = false;
+                $this->userInterface->anounceResult("lose", $this, $player);
                 break;
+            }
+        }
+
+        if ($passed === $numOfPlayers) {
+            if (!$tie) {
+                $this->userInterface->anounceResult("win", $this, $estimatedWinner);
+            } else {
+                $this->userInterface->anounceResult("tie", $this);
             }
         }
     }
@@ -132,5 +171,13 @@ class Game
         $this->gameGoing = true;
         $this->players = [];
         $this->start();
+    }
+
+    /**
+     * @param bool $gameGoing
+     */
+    public function setGameGoing(bool $gameGoing): void
+    {
+        $this->gameGoing = $gameGoing;
     }
 }

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App;
 
+use _HumbugBox3ab8cff0fda0\PhpParser\Node\Stmt\Label;
+
 class UserInterface
 {
     private $heightDisplay = 10;
@@ -11,7 +13,7 @@ class UserInterface
     public function drawHandHeader(string $playerId, array $hand): void
     {
         printf(
-            "Player: %s points %i cards:\n",
+            "Player: %s points %d cards:\n",
             $playerId,
             Deck::countHandValue($hand)
         );
@@ -145,5 +147,36 @@ class UserInterface
         echo$message."\n";
         $handle = fopen('php://stdin', 'r');
         fgets($handle);
+    }
+
+    public function showHand(Player $player)
+    {
+        $this->drawHandHeader($player->getName(), $player->getHand());
+        $this->drawHand($player->getHand());
+        $this->requireAcceptForNextStep('Next player turn.. press enter');
+    }
+
+    public function anounceResult(
+        string $result,
+        Game $game,
+        Player $player = null
+    ): void{
+        $this->clearConsole();
+        $game->setGameGoing(false);
+
+
+        switch ($result) {
+            case "win":
+                echo 'Player '.$player->getName()." won game\n";
+                break;
+            case "lose":
+                echo 'Player '.$player->getName()." lost game\n";
+                break;
+            case "tie":
+                echo "Game ended with tie!";
+                return;
+        }
+
+        $this->drawHand($player->getHand());
     }
 }
